@@ -844,8 +844,8 @@
       };
 
       // grava no Supabase
-      const payload = {
-        convidado_id: getGuestId(),
+      const cid = getGuestId();
+      const fields = {
         nome: entry.name,
         vai_comparecer: selectedAttendance === 'yes',
         acompanhantes: companionNames,
@@ -853,13 +853,16 @@
       };
       let resp;
       if (wasEditing) {
-        // já respondeu neste aparelho → atualiza a linha dele (sem tentar inserir)
-        resp = await db.from('rsvp').update(payload).eq('convidado_id', payload.convidado_id);
+        // atualiza a linha deste convidado; se ela não existir mais, recria
+        resp = await db.from('rsvp').update(fields, { count: 'exact' }).eq('convidado_id', cid);
+        if (!resp.error && resp.count === 0) {
+          resp = await db.from('rsvp').insert({ ...fields, convidado_id: cid });
+        }
       } else {
-        resp = await db.from('rsvp').insert(payload);
+        resp = await db.from('rsvp').insert({ ...fields, convidado_id: cid });
         // rede de segurança: se a linha já existir, vira atualização
         if (resp.error && (resp.error.code === '23505' || resp.status === 409)) {
-          resp = await db.from('rsvp').update(payload).eq('convidado_id', payload.convidado_id);
+          resp = await db.from('rsvp').update(fields).eq('convidado_id', cid);
         }
       }
       if (resp.error) throw resp.error;
