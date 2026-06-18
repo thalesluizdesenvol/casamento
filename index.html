@@ -361,57 +361,6 @@
   .rsvp-confirmed .msg{ font-family:'Cormorant Garamond', serif; font-size:17px; color:var(--ink); line-height:1.5; }
   .rsvp-confirmed .msg b{ color:var(--gold-deep); }
 
-  /* ---------- Admin ---------- */
-  .admin-link{ margin-top:18px; text-align:center; }
-  .admin-link a{
-    font-family:'Jost', sans-serif; font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--ink-soft); opacity:0.5; text-decoration:none;
-  }
-  .admin-link a:hover{ opacity:0.85; }
-
-  .admin-overlay{
-    position:fixed; inset:0; background:rgba(46,42,38,0.55); backdrop-filter:blur(3px);
-    display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
-  }
-  .admin-overlay.show{ display:flex; }
-  .admin-panel{
-    background:var(--cream); border:1px solid var(--line); border-radius:4px;
-    width:100%; max-width:480px; max-height:85vh; overflow-y:auto; padding:28px 24px;
-    box-shadow:0 30px 60px -20px rgba(0,0,0,0.4);
-  }
-  .admin-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-  .admin-title{ font-family:'Fraunces', serif; font-weight:380; font-size:24px; color:var(--gold-deep); }
-  .admin-close{ background:none; border:none; font-size:24px; color:var(--ink-soft); cursor:pointer; line-height:1; }
-  .admin-close:hover{ color:var(--ink); }
-  .admin-login{ display:flex; flex-direction:column; gap:12px; }
-  .admin-stats{ display:flex; gap:10px; margin-bottom:18px; }
-  .stat-box{
-    flex:1; text-align:center; border:1px solid var(--line); border-radius:4px;
-    padding:12px 6px; background:rgba(255,255,255,0.4);
-  }
-  .stat-box .stat-num{ font-family:'Fraunces', serif; font-weight:380; font-size:26px; color:var(--gold-deep); }
-  .stat-box .stat-lbl{
-    font-family:'Jost', sans-serif; font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--ink-soft); margin-top:2px;
-  }
-  .guest-list{ display:flex; flex-direction:column; gap:8px; }
-  .guest-row{
-    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-    border:1px solid var(--line); border-radius:3px; padding:10px 12px; background:rgba(255,255,255,0.35);
-  }
-  .guest-info{ flex:1; min-width:0; }
-  .guest-info .guest-name{ font-family:'Cormorant Garamond', serif; font-size:16px; color:var(--ink); font-weight:500; }
-  .guest-info .guest-meta{ font-family:'Jost', sans-serif; font-size:9.5px; color:var(--ink-soft); margin-top:3px; line-height:1.4; }
-  .guest-info .guest-note{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:14px; color:var(--ink-soft); margin-top:5px; }
-  .guest-status{
-    flex-shrink:0; font-family:'Jost', sans-serif; font-size:9.5px; letter-spacing:1px;
-    text-transform:uppercase; padding:4px 10px; border-radius:20px;
-  }
-  .guest-status.yes{ background:rgba(139,149,116,0.18); color:#5d6b42; }
-  .guest-status.no{ background:rgba(161,75,58,0.12); color:#a14b3a; }
-  .empty-list{ text-align:center; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:15px; color:var(--ink-soft); padding:24px 0; }
-  .admin-loading{ text-align:center; padding:30px 0; font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--ink-soft); }
-
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:var(--cream); font-family:'Jost', sans-serif; font-size:12px;
@@ -676,51 +625,45 @@
         <div class="msg" id="confirmedMsg"></div>
       </div>
     </div>
-
-    <div class="admin-link"><a href="#" id="openAdmin">Painel dos noivos</a></div>
-  </div>
-</div>
-
-<!-- Admin overlay -->
-<div class="admin-overlay" id="adminOverlay">
-  <div class="admin-panel">
-    <div class="admin-header">
-      <div class="admin-title">Lista de convidados</div>
-      <button class="admin-close" id="closeAdmin">&times;</button>
-    </div>
-    <div id="adminLoginView" class="admin-login">
-      <div>
-        <label class="field-label" for="adminPass">Senha</label>
-        <input class="field-input" id="adminPass" type="password" placeholder="Digite a senha">
-      </div>
-      <div class="rsvp-error" id="adminError"></div>
-      <button class="btn-submit" id="adminLoginBtn" type="button">Entrar</button>
-    </div>
-    <div id="adminListView" style="display:none;">
-      <div class="admin-stats">
-        <div class="stat-box"><div class="stat-num" id="statConfirmed">0</div><div class="stat-lbl">Confirmados</div></div>
-        <div class="stat-box"><div class="stat-num" id="statDeclined">0</div><div class="stat-lbl">Não vão</div></div>
-        <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total c/ acomp.</div></div>
-      </div>
-      <div class="guest-list" id="guestList"></div>
-    </div>
-    <div id="adminLoadingView" class="admin-loading" style="display:none;">Carregando...</div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   /* ============================================================
-     CONFIGURAÇÃO RÁPIDA — edite só estas linhas
+     CONFIGURAÇÃO — edite só este bloco
      ============================================================ */
-  const ADMIN_PASSWORD = "TeG2026";          // senha do painel dos noivos
-  const PIX_KEY        = "";                  // sua chave Pix (deixe "" para ocultar a seção de presente)
-  const PIX_OWNER      = "";                  // nome que aparece como titular (opcional)
-  // Links dos locais (pin fixo no Google Maps)
+  // 1) Supabase → Settings > API (cole o Project URL e a anon public key)
+  const SUPABASE_URL      = "https://SEU-PROJETO.supabase.co";
+  const SUPABASE_ANON_KEY = "COLE-SUA-ANON-KEY-AQUI";
+
+  // 2) Presente (opcional) — com PIX_KEY vazia, a seção fica oculta
+  const PIX_KEY   = "";
+  const PIX_OWNER = "";
+
+  // 3) Locais (pin fixo no Google Maps)
   const MAPS_CERIMONIA = "https://maps.google.com/?cid=10205480401173843148"; // Cartório de Registro Civil de Uberlândia
   const MAPS_RECEPCAO  = "https://maps.google.com/?cid=3317464569462060908";  // Restaurante Casa Brasil
   /* ============================================================ */
+
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* identidade local do convidado (para não duplicar e poder editar) */
+  function getGuestId(){
+    let gid = localStorage.getItem('rsvp_guest_id');
+    if(!gid){
+      gid = (crypto.randomUUID ? crypto.randomUUID()
+            : 'g-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+      localStorage.setItem('rsvp_guest_id', gid);
+    }
+    return gid;
+  }
+  function getLocalRsvp(){
+    try{ return JSON.parse(localStorage.getItem('rsvp_mine') || 'null'); }catch(e){ return null; }
+  }
+  function setLocalRsvp(entry){ localStorage.setItem('rsvp_mine', JSON.stringify(entry)); }
 
   function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
 
@@ -796,7 +739,6 @@
      RSVP — uma entrada por convidado, com edição
      ============================================================ */
   let selectedAttendance = null;
-  let editingId = null; // id da entrada deste convidado (se já respondeu)
 
   const btnYes = document.getElementById('btnYes');
   const btnNo = document.getElementById('btnNo');
@@ -840,12 +782,7 @@
   btnYes.addEventListener('click', ()=> setAttendance('yes'));
   btnNo.addEventListener('click', ()=> setAttendance('no'));
 
-  function slugify(str){
-    return str.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-  }
-
-  /* mostra estado de quem já respondeu (lido do storage pessoal) */
+  /* mostra estado de quem já respondeu (lido do localStorage) */
   function renderStatus(entry){
     rsvpForm.style.display = 'none';
     rsvpConfirmed.style.display = 'none';
@@ -871,7 +808,6 @@
     rsvpError.textContent = '';
     clearCompanions();
     if(entry){
-      editingId = entry.id || null;
       guestNameInput.value = entry.name || '';
       guestNoteInput.value = entry.note || '';
       setAttendance(entry.attending || null);
@@ -879,18 +815,13 @@
         entry.companionNames.forEach(n => addCompanionField(n));
       }
     } else {
-      editingId = null;
       guestNameInput.value = ''; guestNoteInput.value = '';
       selectedAttendance = null;
       btnYes.classList.remove('active-yes'); btnNo.classList.remove('active-no');
       companionsWrap.classList.remove('open');
     }
   }
-  document.getElementById('editRsvpBtn').addEventListener('click', async ()=>{
-    let mine = null;
-    try{ const r = await window.storage.get('myrsvp', false); if(r && r.value) mine = JSON.parse(r.value); }catch(e){}
-    openForm(mine);
-  });
+  document.getElementById('editRsvpBtn').addEventListener('click', ()=> openForm(getLocalRsvp()));
 
   submitRsvp.addEventListener('click', async ()=>{
     const name = guestNameInput.value.trim();
@@ -901,126 +832,52 @@
     const companionNames = selectedAttendance === 'yes' ? getCompanionNames() : [];
     submitRsvp.disabled = true; submitRsvp.textContent = 'Enviando...';
 
+    const wasEditing = !!getLocalRsvp();
     try{
-      const id = editingId || (slugify(name) + '-' + Date.now());
       const entry = {
-        id, name,
+        name,
         attending: selectedAttendance,
         companionNames,
         companions: companionNames.length,
         note: guestNoteInput.value.trim(),
         timestamp: new Date().toISOString()
       };
-      // lista consolidada (visível aos noivos) + cópia pessoal (para editar depois)
-      const r1 = await window.storage.set('rsvp:' + id, JSON.stringify(entry), true);
-      if(!r1) throw new Error('Falha ao salvar');
-      await window.storage.set('myrsvp', JSON.stringify(entry), false);
+
+      // grava no Supabase — upsert por convidado: não duplica e permite editar depois
+      const { error } = await db.from('rsvp').upsert({
+        convidado_id: getGuestId(),
+        nome: entry.name,
+        vai_comparecer: selectedAttendance === 'yes',
+        acompanhantes: companionNames,
+        recado: entry.note || null
+      }, { onConflict: 'convidado_id' });
+      if(error) throw error;
+
+      setLocalRsvp(entry); // lembra a resposta neste aparelho
 
       rsvpForm.style.display = 'none';
       rsvpConfirmed.style.display = 'block';
       if(selectedAttendance === 'yes'){
         const count = companionNames.length;
         confirmedMsg.innerHTML = 'Que alegria, <b>' + escapeHtml(name) + '</b>!<br>'
-          + (editingId ? 'Sua resposta foi atualizada' : 'Confirmamos sua presença')
+          + (wasEditing ? 'Sua resposta foi atualizada' : 'Confirmamos sua presença')
           + (count > 0 ? ' — você e mais ' + count + (count===1 ? ' acompanhante' : ' acompanhantes') : '')
           + '.<br>Até o grande dia! 🤍';
       } else {
         confirmedMsg.innerHTML = 'Sentiremos sua falta, <b>' + escapeHtml(name) + '</b>.<br>Obrigado por nos avisar com carinho.';
       }
     }catch(err){
-      rsvpError.textContent = 'Algo deu errado. Tente novamente.';
+      console.error('Erro ao salvar RSVP:', err);
+      rsvpError.textContent = 'Não consegui enviar agora. Confira sua conexão e tente de novo.';
       submitRsvp.disabled = false; submitRsvp.textContent = 'Enviar confirmação';
     }
   });
 
-  /* ao carregar: se este convidado já respondeu, mostra o estado; senão, mostra o form */
-  (async function initRsvp(){
-    let mine = null;
-    try{ const r = await window.storage.get('myrsvp', false); if(r && r.value) mine = JSON.parse(r.value); }catch(e){}
+  /* ao carregar: se este convidado já respondeu neste aparelho, mostra o estado */
+  (function initRsvp(){
+    const mine = getLocalRsvp();
     if(mine){ renderStatus(mine); } else { openForm(null); }
   })();
-
-  /* ============================================================
-     Painel dos noivos
-     ============================================================ */
-  const adminOverlay = document.getElementById('adminOverlay');
-  const openAdmin = document.getElementById('openAdmin');
-  const closeAdmin = document.getElementById('closeAdmin');
-  const adminLoginView = document.getElementById('adminLoginView');
-  const adminListView = document.getElementById('adminListView');
-  const adminLoadingView = document.getElementById('adminLoadingView');
-  const adminPass = document.getElementById('adminPass');
-  const adminError = document.getElementById('adminError');
-  const adminLoginBtn = document.getElementById('adminLoginBtn');
-
-  openAdmin.addEventListener('click', (e)=>{
-    e.preventDefault();
-    adminOverlay.classList.add('show');
-    adminLoginView.style.display = 'flex';
-    adminListView.style.display = 'none';
-    adminLoadingView.style.display = 'none';
-    adminPass.value = ''; adminError.textContent = '';
-  });
-  closeAdmin.addEventListener('click', ()=> adminOverlay.classList.remove('show'));
-  adminOverlay.addEventListener('click', (e)=>{ if(e.target === adminOverlay) adminOverlay.classList.remove('show'); });
-
-  adminLoginBtn.addEventListener('click', async ()=>{
-    if(adminPass.value !== ADMIN_PASSWORD){ adminError.textContent = 'Senha incorreta.'; return; }
-    adminLoginView.style.display = 'none';
-    adminLoadingView.style.display = 'block';
-    await loadGuestList();
-  });
-  adminPass.addEventListener('keypress', (e)=>{ if(e.key === 'Enter') adminLoginBtn.click(); });
-
-  async function loadGuestList(){
-    try{
-      const keysResult = await window.storage.list('rsvp:', true);
-      const keys = (keysResult && keysResult.keys) ? keysResult.keys : [];
-      const entries = [];
-      for(const k of keys){
-        try{ const item = await window.storage.get(k, true); if(item && item.value) entries.push(JSON.parse(item.value)); }
-        catch(e){}
-      }
-      entries.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
-
-      const confirmedCount = entries.filter(e=> e.attending==='yes').length;
-      const declinedCount = entries.filter(e=> e.attending==='no').length;
-      const totalPeople = entries.filter(e=> e.attending==='yes').reduce((s,e)=> s + 1 + (e.companions||0), 0);
-
-      document.getElementById('statConfirmed').textContent = confirmedCount;
-      document.getElementById('statDeclined').textContent = declinedCount;
-      document.getElementById('statTotal').textContent = totalPeople;
-
-      const list = document.getElementById('guestList');
-      list.innerHTML = '';
-      if(entries.length === 0){
-        list.innerHTML = '<div class="empty-list">Ainda não há confirmações.</div>';
-      } else {
-        entries.forEach(e=>{
-          const row = document.createElement('div'); row.className = 'guest-row';
-          const dateStr = new Date(e.timestamp).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
-          const names = Array.isArray(e.companionNames) ? e.companionNames : [];
-          const companionsLine = (e.attending==='yes' && names.length>0)
-            ? '<div class="guest-meta">com: ' + names.map(n=>escapeHtml(n)).join(', ') + '</div>' : '';
-          const noteLine = e.note ? '<div class="guest-note">“' + escapeHtml(e.note) + '”</div>' : '';
-          row.innerHTML =
-            '<div class="guest-info">'
-            + '<div class="guest-name">' + escapeHtml(e.name) + '</div>'
-            + '<div class="guest-meta">' + (e.attending==='yes' ? (1+names.length)+' pessoa(s)' : 'respondeu') + ' · ' + dateStr + '</div>'
-            + companionsLine + noteLine
-            + '</div>'
-            + '<div class="guest-status ' + (e.attending==='yes'?'yes':'no') + '">' + (e.attending==='yes'?'Confirmado':'Não vai') + '</div>';
-          list.appendChild(row);
-        });
-      }
-      adminLoadingView.style.display = 'none';
-      adminListView.style.display = 'block';
-    }catch(err){
-      adminLoadingView.style.display = 'none';
-      adminLoginView.style.display = 'flex';
-      adminError.textContent = 'Erro ao carregar a lista. Tente novamente.';
-    }
-  }
 </script>
 </body>
 </html>
