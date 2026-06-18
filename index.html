@@ -843,15 +843,19 @@
         timestamp: new Date().toISOString()
       };
 
-      // grava no Supabase — upsert por convidado: não duplica e permite editar depois
-      const { error } = await db.from('rsvp').upsert({
+      // grava no Supabase: insere; se este convidado já respondeu, atualiza a linha dele
+      const payload = {
         convidado_id: getGuestId(),
         nome: entry.name,
         vai_comparecer: selectedAttendance === 'yes',
         acompanhantes: companionNames,
         recado: entry.note || null
-      }, { onConflict: 'convidado_id' });
-      if(error) throw error;
+      };
+      let resp = await db.from('rsvp').insert(payload);
+      if (resp.error && resp.error.code === '23505') {        // já existe → edição
+        resp = await db.from('rsvp').update(payload).eq('convidado_id', payload.convidado_id);
+      }
+      if (resp.error) throw resp.error;
 
       setLocalRsvp(entry); // lembra a resposta neste aparelho
 
