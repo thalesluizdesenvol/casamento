@@ -853,14 +853,11 @@
       };
       let resp;
       if (wasEditing) {
-        // atualiza a linha deste convidado; se ela não existir mais, recria
-        resp = await db.from('rsvp').update(fields, { count: 'exact' }).eq('convidado_id', cid);
-        if (!resp.error && resp.count === 0) {
-          resp = await db.from('rsvp').insert({ ...fields, convidado_id: cid });
-        }
+        // já respondeu neste aparelho → atualiza a linha dele
+        resp = await db.from('rsvp').update(fields).eq('convidado_id', cid);
       } else {
         resp = await db.from('rsvp').insert({ ...fields, convidado_id: cid });
-        // rede de segurança: se a linha já existir, vira atualização
+        // se a linha já existir (confirmação anterior), vira atualização
         if (resp.error && (resp.error.code === '23505' || resp.status === 409)) {
           resp = await db.from('rsvp').update(fields).eq('convidado_id', cid);
         }
