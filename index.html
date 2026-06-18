@@ -843,7 +843,7 @@
         timestamp: new Date().toISOString()
       };
 
-      // grava no Supabase: insere; se este convidado já respondeu, atualiza a linha dele
+      // grava no Supabase
       const payload = {
         convidado_id: getGuestId(),
         nome: entry.name,
@@ -851,9 +851,16 @@
         acompanhantes: companionNames,
         recado: entry.note || null
       };
-      let resp = await db.from('rsvp').insert(payload);
-      if (resp.error && resp.error.code === '23505') {        // já existe → edição
+      let resp;
+      if (wasEditing) {
+        // já respondeu neste aparelho → atualiza a linha dele (sem tentar inserir)
         resp = await db.from('rsvp').update(payload).eq('convidado_id', payload.convidado_id);
+      } else {
+        resp = await db.from('rsvp').insert(payload);
+        // rede de segurança: se a linha já existir, vira atualização
+        if (resp.error && (resp.error.code === '23505' || resp.status === 409)) {
+          resp = await db.from('rsvp').update(payload).eq('convidado_id', payload.convidado_id);
+        }
       }
       if (resp.error) throw resp.error;
 
